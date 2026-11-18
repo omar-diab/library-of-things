@@ -19,6 +19,15 @@ mvn test
 
 The code coverage report is generated at `target/site/jacoco/index.html`.
 
+## Try it in the terminal
+
+```bash
+mvn -q compile
+java -cp target/classes com.libraryofthings.Main
+```
+
+Choose `13` to load sample members and items, then try borrowing, returning and renewing.
+
 ## Project structure
 
 ```
