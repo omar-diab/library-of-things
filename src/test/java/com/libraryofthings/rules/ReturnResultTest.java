@@ -51,10 +51,12 @@ class ReturnResultTest {
     }
 
     @Test
-    @DisplayName("The trust change from TrustPolicy is included")
+    @DisplayName("The borrower and owner trust changes from TrustPolicy are included")
     void includesTrustChange() {
         assertEquals(5, ReturnResult.settle(0, 100, Condition.GOOD).getTrustChange());
         assertEquals(-50, ReturnResult.settle(8, 100, Condition.DAMAGED).getTrustChange());
+        assertEquals(2, ReturnResult.settle(0, 100, Condition.GOOD).getOwnerTrustChange());
+        assertEquals(0, ReturnResult.settle(1, 100, Condition.GOOD).getOwnerTrustChange());
     }
 
     @Test

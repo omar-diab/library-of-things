@@ -5,7 +5,7 @@ import com.libraryofthings.model.Condition;
 import com.libraryofthings.validation.Validator;
 
 /**
- * What happens to the money and trust score when an item is returned (FR4, BR2, BR3, BR5).
+ * What happens to the money and trust scores when an item is returned (FR4, BR2, BR2b, BR3, BR5).
  *
  * <pre>
  * GOOD:    the late fee is taken from the deposit first and that part goes to the owner;
@@ -22,15 +22,17 @@ public final class ReturnResult {
     private final int depositToOwner;
     private final int fineAdded;
     private final int trustChange;
+    private final int ownerTrustChange;
 
     private ReturnResult(int daysLate, int lateFee, int depositRefunded,
-                         int depositToOwner, int fineAdded, int trustChange) {
+                         int depositToOwner, int fineAdded, int trustChange, int ownerTrustChange) {
         this.daysLate = daysLate;
         this.lateFee = lateFee;
         this.depositRefunded = depositRefunded;
         this.depositToOwner = depositToOwner;
         this.fineAdded = fineAdded;
         this.trustChange = trustChange;
+        this.ownerTrustChange = ownerTrustChange;
     }
 
     /** Works out the result of a return. */
@@ -41,14 +43,15 @@ public final class ReturnResult {
         }
         int fee = FineCalculator.lateFee(daysLate);
         int trust = TrustPolicy.trustChange(daysLate, condition);
+        int ownerTrust = TrustPolicy.ownerReward(daysLate, condition);
 
         if (condition == Condition.DAMAGED) {
-            return new ReturnResult(daysLate, fee, 0, depositHeld, fee, trust);
+            return new ReturnResult(daysLate, fee, 0, depositHeld, fee, trust, ownerTrust);
         }
         int keptFromDeposit = Math.min(fee, depositHeld);
         int refund = depositHeld - keptFromDeposit;
         int fine = fee - keptFromDeposit;
-        return new ReturnResult(daysLate, fee, refund, keptFromDeposit, fine, trust);
+        return new ReturnResult(daysLate, fee, refund, keptFromDeposit, fine, trust, ownerTrust);
     }
 
     public int getDaysLate() {
@@ -73,5 +76,10 @@ public final class ReturnResult {
 
     public int getTrustChange() {
         return trustChange;
+    }
+
+    /** Trust points the item's owner earns from this return (BR2b). */
+    public int getOwnerTrustChange() {
+        return ownerTrustChange;
     }
 }

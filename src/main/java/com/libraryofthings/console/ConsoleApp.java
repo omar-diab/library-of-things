@@ -122,7 +122,8 @@ public class ConsoleApp {
                 + ", deposit refunded: " + result.getDepositRefunded() + " TL"
                 + ", paid to owner: " + result.getDepositToOwner() + " TL"
                 + ", fine added: " + result.getFineAdded() + " TL"
-                + ", trust change: " + result.getTrustChange());
+                + ", trust change: " + result.getTrustChange()
+                + ", owner trust change: " + result.getOwnerTrustChange());
     }
 
     private void renew() {

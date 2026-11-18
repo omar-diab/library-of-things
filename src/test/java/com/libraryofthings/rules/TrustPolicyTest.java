@@ -41,6 +41,25 @@ class TrustPolicyTest {
         assertEquals(expected, TrustPolicy.trustChange(daysLate, condition));
     }
 
+    @ParameterizedTest(name = "{0} day(s) late, {1} -> owner {2}")
+    @DisplayName("Decision table + BVA: owner reward (BR2b) only for on time and GOOD")
+    @CsvSource({
+        "0, GOOD,    2",
+        "1, GOOD,    0",
+        "0, DAMAGED, 0",
+        "8, DAMAGED, 0"
+    })
+    void ownerReward(int daysLate, Condition condition, int expected) {
+        assertEquals(expected, TrustPolicy.ownerReward(daysLate, condition));
+    }
+
+    @Test
+    @DisplayName("Negative: owner reward rejects negative days and a missing condition")
+    void ownerRewardInvalidInput() {
+        assertThrows(InvalidInputException.class, () -> TrustPolicy.ownerReward(-1, Condition.GOOD));
+        assertThrows(InvalidInputException.class, () -> TrustPolicy.ownerReward(0, null));
+    }
+
     @Test
     @DisplayName("Negative: negative days late are rejected")
     void negativeDaysAreRejected() {

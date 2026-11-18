@@ -106,7 +106,7 @@ public class LendingService {
 
     // ---------------------------------------------------------------- FR4
 
-    /** FR4: returns an item, settles the deposit and late fee, and updates the trust score. */
+    /** FR4: returns an item, settles the deposit and late fee, and updates the borrower's and owner's trust. */
     public ReturnResult returnItem(String itemId, LocalDate returnDate, Condition condition) {
         Validator.requireDate(returnDate, "Return date");
         Validator.requireNotNull(condition, "Condition");
@@ -120,6 +120,7 @@ public class LendingService {
         Member borrower = loan.getBorrower();
         borrower.addFine(result.getFineAdded());
         borrower.changeTrust(result.getTrustChange());
+        getMember(item.getOwnerId()).changeTrust(result.getOwnerTrustChange());
         item.markReturned(condition);
         return result;
     }
