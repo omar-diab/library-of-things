@@ -108,7 +108,8 @@ Input: item ID, return date, condition (`GOOD` or `DAMAGED`).
 - The method returns a result with: days late, late fee, deposit refunded, deposit paid to the owner, fine added, trust change.
 
 ### FR5 – Renew a loan (BR6)
-Input: item ID, renewal date. The item must currently be borrowed.
+Input: item ID, renewal date. The item must currently be borrowed, and the renewal date cannot be
+before the loan's start date (otherwise `InvalidInputException`).
 Checked in this fixed order; the first failure is reported in `RenewalNotAllowedException`:
 
 | Order | Condition that blocks renewal | Reason |

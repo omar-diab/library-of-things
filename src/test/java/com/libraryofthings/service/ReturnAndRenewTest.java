@@ -189,6 +189,24 @@ class ReturnAndRenewTest {
             }
         }
 
+        @ParameterizedTest(name = "renew on {0}: rejected = {1}")
+        @DisplayName("BVA / negative: a renewal date before the start date (Nov 2) is rejected (defect D1)")
+        @CsvSource({
+            "2026-01-01, true",
+            "2026-11-01, true",
+            "2026-11-02, false"
+        })
+        void renewalBeforeStart(LocalDate date, boolean rejected) {
+            if (rejected) {
+                assertThrows(InvalidInputException.class, () -> service.renew(DRILL, date));
+                Loan loan = service.activeLoans(BORROWER).get(0);
+                assertEquals(DUE, loan.getDueDate());
+                assertEquals(0, loan.getRenewals());
+            } else {
+                assertEquals(DUE.plusDays(7), service.renew(DRILL, date).getDueDate());
+            }
+        }
+
         @Test
         @DisplayName("After a renewal, returning on the new due date is on time")
         void returnAfterRenewal() {
