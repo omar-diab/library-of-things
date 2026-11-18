@@ -96,4 +96,70 @@ class ConsoleAppTest {
         assertTrue(output.contains(" - I0002 Ladder [TOOLS]"));
         assertTrue(output.contains("No available items in this category."));
     }
+
+    @Test
+    @DisplayName("Reserve, a refused renewal, and the loans list")
+    void reserveAndShowLoans() {
+        String output = run(
+                "13",
+                "3", "M0002", "I0001", "2026-11-02", "7",
+                "6", "M0003", "I0001",
+                "5", "I0001", "2026-11-09",
+                "11", "M0002",
+                "11", "M0003",
+                "0");
+        assertTrue(output.contains("Reserved I0001 for M0003"));
+        assertTrue(output.contains("Error: RESERVED_BY_OTHER"));
+        assertTrue(output.contains(" - I0001 Cordless drill, due 2026-11-09, renewals 0"));
+        assertTrue(output.contains("No active loans."));
+    }
+
+    @Test
+    @DisplayName("Renew a loan successfully")
+    void renew() {
+        String output = run("13", "3", "M0002", "I0001", "2026-11-02", "7", "5", "I0001", "2026-11-05", "0");
+        assertTrue(output.contains("Renewed. New due date: 2026-11-16"));
+    }
+
+    @Test
+    @DisplayName("A damaged, late return creates a fine that can be paid in part")
+    void payFine() {
+        String output = run(
+                "13",
+                "3", "M0002", "I0004", "2026-11-02", "7",
+                "4", "I0004", "2026-11-17", "damaged",
+                "7", "M0002", "20",
+                "0");
+        assertTrue(output.contains("fine added: 45 TL"));
+        assertTrue(output.contains("Paid. Unpaid fines now: 25 TL"));
+        assertEquals(25, service.getMember("M0002").getUnpaidFines());
+    }
+
+    @Test
+    @DisplayName("Owner withdraws and restores an item; another member cannot")
+    void withdrawAndRestore() {
+        String output = run(
+                "13",
+                "8", "M0001", "I0001",
+                "10", "M0002", "tools",
+                "9", "M0001", "I0001",
+                "8", "M0002", "I0001",
+                "0");
+        assertTrue(output.contains("Withdrew I0001"));
+        assertTrue(output.contains("Restored I0001"));
+        assertTrue(output.contains("Error: M0002 does not own I0001"));
+        assertEquals(ItemStatus.AVAILABLE, service.getItem("I0001").getStatus());
+    }
+
+    @Test
+    @DisplayName("Add an item from the menu; an unknown member is reported")
+    void addItemAndUnknownMember() {
+        String output = run(
+                "1", "M0001", "Omar",
+                "2", "I0001", "Drill", "tools", "M0001", "200",
+                "12", "M0009",
+                "0");
+        assertTrue(output.contains("Added I0001 Drill [TOOLS], owner M0001, deposit 200 TL, AVAILABLE"));
+        assertTrue(output.contains("Error: No member with ID M0009"));
+    }
 }
