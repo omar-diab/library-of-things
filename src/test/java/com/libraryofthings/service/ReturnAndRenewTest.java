@@ -132,6 +132,50 @@ class ReturnAndRenewTest {
     }
 
     @Nested
+    @DisplayName("Owner earns trust by lending (BR2b, defect D2)")
+    class OwnerReward {
+
+        @ParameterizedTest(name = "returned {0}, {1}: owner trust {2}")
+        @DisplayName("Decision table + BVA: only an on-time return in good condition rewards the owner (+2)")
+        @CsvSource({
+            "2026-11-02, GOOD,    52",
+            "2026-11-09, GOOD,    52",
+            "2026-11-10, GOOD,    50",
+            "2026-11-09, DAMAGED, 50",
+            "2026-11-17, DAMAGED, 50"
+        })
+        void ownerReward(LocalDate returnDate, Condition condition, int ownerTrustAfter) {
+            service.returnItem(DRILL, returnDate, condition);
+            assertEquals(ownerTrustAfter, service.getMember(OWNER).getTrustScore());
+        }
+
+        @Test
+        @DisplayName("A BLOCKED owner (29) gets back to STANDARD (31) by lending, and can borrow again")
+        void blockedOwnerRecovers() {
+            Member owner = service.getMember(OWNER);
+            owner.changeTrust(-21); // 50 -> 29, BLOCKED
+            assertEquals(TrustTier.BLOCKED, owner.getTier());
+
+            service.returnItem(DRILL, DUE, Condition.GOOD);
+
+            assertEquals(31, owner.getTrustScore());
+            assertEquals(TrustTier.STANDARD, owner.getTier());
+            service.addItem("I0002", "Tent", Category.OUTDOOR, OTHER, 100);
+            service.borrow(OWNER, "I0002", DUE, 7);
+            assertEquals(1, service.activeLoans(OWNER).size());
+        }
+
+        @Test
+        @DisplayName("BVA: the owner's reward never takes the score above 100")
+        void rewardIsCapped() {
+            Member owner = service.getMember(OWNER);
+            owner.changeTrust(49); // 99
+            service.returnItem(DRILL, DUE, Condition.GOOD);
+            assertEquals(100, owner.getTrustScore());
+        }
+    }
+
+    @Nested
     @DisplayName("Renewing a loan (FR5, BR6)")
     class Renewing {
 

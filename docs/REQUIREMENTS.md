@@ -49,6 +49,10 @@ The score decides the member's tier:
 | Returned 8 or more days late | −20 |
 | Returned damaged | −30 (in addition to any late change) |
 
+**BR2b – Owners earn trust by lending:** when an item is returned on time (0 days late) and in good
+condition, the item's **owner** gains +2. This gives a BLOCKED member a way back: they cannot borrow,
+but they can still lend.
+
 The score never goes above 100 or below 0.
 
 ## 4. Late Fee Rule (BR3)
