@@ -136,6 +136,10 @@ public class LendingService {
         Loan loan = getActiveLoan(item);
         String borrowerId = loan.getBorrower().getId();
 
+        if (renewalDate.isBefore(loan.getStartDate())) {
+            throw new InvalidInputException(
+                    "Renewal date " + renewalDate + " is before the start date " + loan.getStartDate());
+        }
         if (loan.isOverdueOn(renewalDate)) {
             throw new RenewalNotAllowedException(RenewalRefusal.OVERDUE,
                     "due date was " + loan.getDueDate());
