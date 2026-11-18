@@ -98,14 +98,14 @@ Input: item ID, return date, condition (`GOOD` or `DAMAGED`).
   (otherwise `InvalidInputException`).
 - Days late = return date − due date (0 if returned on or before the due date).
 - Late fee is calculated with BR3.
-- **Condition GOOD:** the late fee is taken from the held deposit first.
+- **Condition GOOD:** the late fee is taken from the held deposit first, and that part goes to the owner.
   Refund to the borrower = held deposit − late fee (not below 0).
   If the late fee is larger than the deposit, the difference is added to the borrower's unpaid fines.
   The item becomes `AVAILABLE` (it stays reserved if someone reserved it).
 - **Condition DAMAGED:** the whole held deposit goes to the owner (no refund), the full late fee
   is added to the borrower's unpaid fines, and the item becomes `WITHDRAWN` until the owner restores it.
 - The trust score is updated with BR2.
-- The method returns a result with: days late, late fee, deposit refunded, fine added.
+- The method returns a result with: days late, late fee, deposit refunded, deposit paid to the owner, fine added, trust change.
 
 ### FR5 – Renew a loan (BR6)
 Input: item ID, renewal date. The item must currently be borrowed.
@@ -151,7 +151,7 @@ Input: member ID. Output: the member's loans that have not been returned.
 | `Item` | ID, name, category, owner, deposit, status, reservation |
 | `Category`, `ItemStatus`, `Condition` (enums) | fixed lists of values |
 | `Loan` | item, borrower, start date, due date, loan length, deposit held, renewals, return date |
-| `ReturnResult` | days late, late fee, deposit refunded, fine added |
+| `ReturnResult` | days late, late fee, deposit refunded, deposit to owner, fine added, trust change |
 | `Validator` | format checks for IDs, names, deposits, dates |
 | `FineCalculator` | late fee rule (BR3) |
 | `TrustPolicy` | trust score changes (BR2) |
